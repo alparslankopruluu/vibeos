@@ -1,7 +1,6 @@
 import SwiftUI
 import CoreMotion
 
-@MainActor
 final class MotionController: ObservableObject {
     @Published var x: Double = 0
     @Published var y: Double = 0

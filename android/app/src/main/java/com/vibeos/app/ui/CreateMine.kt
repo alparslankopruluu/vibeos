@@ -161,7 +161,7 @@ fun MyScreen(onPremium: () -> Unit, onNotifications: () -> Unit) {
                     Text("🔥", fontSize = 34.sp)
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
-                        Text("3 day vibe streak", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Black)
+                        Text("${AppServices.engagement.streak} day vibe streak", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Black)
                         Text("Come back tomorrow for a fresh Daily Drop.", color = VibeColors.Muted, fontSize = 12.sp)
                     }
                     Text("+25", color = VibeColors.Gold, fontWeight = FontWeight.Black)

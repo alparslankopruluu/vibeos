@@ -163,7 +163,7 @@ struct MyScreenView: View {
                     HStack(spacing: 12) {
                         Text("🔥").font(.system(size: 34))
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("3 day vibe streak")
+                            Text("\(AppServices.shared.engagement.streak) day vibe streak")
                                 .font(.system(size: 18, weight: .black))
                             Text("Come back tomorrow for a fresh Daily Drop.")
                                 .font(.system(size: 12))
@@ -261,21 +261,23 @@ struct PaywallView: View {
 
             Spacer().frame(height: 20)
 
-            GlassCard {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(offer.title)
-                        .font(.system(size: 17, weight: .black))
-                        .foregroundStyle(VibeColors.pink)
-                    Text(offer.subtitle)
-                        .font(.system(size: 13))
-                        .foregroundStyle(.white.opacity(0.82))
-                    Text(countdown)
-                        .font(.system(size: 26, weight: .black))
+            if offer.expiry > now {
+                GlassCard {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(offer.title)
+                            .font(.system(size: 17, weight: .black))
+                            .foregroundStyle(VibeColors.pink)
+                        Text(offer.subtitle)
+                            .font(.system(size: 13))
+                            .foregroundStyle(.white.opacity(0.82))
+                        Text(countdown)
+                            .font(.system(size: 26, weight: .black))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
 
-            Spacer().frame(height: 16)
+                Spacer().frame(height: 16)
+            }
 
             VStack(spacing: 13) {
                 ForEach([
@@ -355,5 +357,11 @@ struct PaywallView: View {
         }
         .padding(18)
         .onReceive(timer) { now = $0 }
+        .onAppear {
+            AppServices.shared.analytics.log(
+                "paywall_view",
+                params: ["offer_id": offers.limitedOffer.id]
+            )
+        }
     }
 }

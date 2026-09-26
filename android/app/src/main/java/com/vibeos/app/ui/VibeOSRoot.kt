@@ -33,6 +33,7 @@ fun vibeColor(value: Long) = Color(value.toULong())
 
 @Composable
 fun VibeOSRoot(
+    externalRoute: String? = null,
     onApplyLiveWorld: () -> Unit,
     onRequestNotifications: () -> Unit,
 ) {
@@ -48,7 +49,7 @@ fun VibeOSRoot(
                 onboarded = true
             }
         } else {
-            MainExperience(onApplyLiveWorld, onRequestNotifications)
+            MainExperience(externalRoute, onApplyLiveWorld, onRequestNotifications)
         }
     }
 }
@@ -96,12 +97,58 @@ private fun OnboardingScreen(onDone: () -> Unit) {
 }
 
 @Composable
-private fun MainExperience(onApplyLiveWorld: () -> Unit, onRequestNotifications: () -> Unit) {
+private fun MainExperience(
+    externalRoute: String?,
+    onApplyLiveWorld: () -> Unit,
+    onRequestNotifications: () -> Unit
+) {
     var tab by rememberSaveable { mutableStateOf(RootTab.Discover) }
     var selectedTheme by remember { mutableStateOf<ThemePack?>(null) }
     var selectedWorld by remember { mutableStateOf<LiveWorld?>(null) }
     var showPaywall by remember { mutableStateOf(false) }
     var applyingTheme by remember { mutableStateOf<ThemePack?>(null) }
+
+    LaunchedEffect(externalRoute) {
+        when (externalRoute?.lowercase()) {
+            "discover" -> {
+                showPaywall = false
+                selectedTheme = null
+                selectedWorld = null
+                applyingTheme = null
+                tab = RootTab.Discover
+            }
+            "live", "live-worlds" -> {
+                showPaywall = false
+                selectedTheme = null
+                selectedWorld = null
+                applyingTheme = null
+                tab = RootTab.Live
+            }
+            "create" -> {
+                showPaywall = false
+                selectedTheme = null
+                selectedWorld = null
+                applyingTheme = null
+                tab = RootTab.Create
+            }
+            "mine", "my-screen" -> {
+                showPaywall = false
+                selectedTheme = null
+                selectedWorld = null
+                applyingTheme = null
+                tab = RootTab.Mine
+            }
+            "premium", "offer" -> {
+                selectedTheme = null
+                selectedWorld = null
+                applyingTheme = null
+                showPaywall = true
+            }
+        }
+        externalRoute?.let {
+            AppServices.analytics.log("deep_link_open", mapOf("route" to it.take(40)))
+        }
+    }
 
     val route = when {
         showPaywall -> "paywall"

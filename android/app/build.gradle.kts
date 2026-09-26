@@ -3,6 +3,12 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val hasGoogleServices = file("google-services.json").exists()
+if (hasGoogleServices) {
+    pluginManager.apply("com.google.gms.google-services")
+    pluginManager.apply("com.google.firebase.crashlytics")
+}
+
 fun secret(name: String): String =
     providers.gradleProperty(name)
         .orElse(providers.environmentVariable(name))

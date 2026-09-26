@@ -3,6 +3,10 @@ import UserNotifications
 import FirebaseCore
 import FirebaseMessaging
 
+extension Notification.Name {
+    static let vibeRoute = Notification.Name("vibeos.route")
+}
+
 final class VibeAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
     func application(
         _ application: UIApplication,
@@ -42,5 +46,19 @@ final class VibeAppDelegate: NSObject, UIApplicationDelegate, UNUserNotification
     ) async -> UNNotificationPresentationOptions {
         AppServices.shared.analytics.log("push_received_foreground")
         return [.banner, .sound, .badge]
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse
+    ) async {
+        let userInfo = response.notification.request.content.userInfo
+        let route = (userInfo["route"] as? String) ?? "discover"
+        AppServices.shared.analytics.log("push_open", params: ["route": route])
+        NotificationCenter.default.post(
+            name: .vibeRoute,
+            object: nil,
+            userInfo: ["route": route]
+        )
     }
 }

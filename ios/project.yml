@@ -29,6 +29,7 @@ targets:
         CURRENT_PROJECT_VERSION: 1
         MARKETING_VERSION: 1.0.0
         CODE_SIGN_ENTITLEMENTS: VibeOS/VibeOS.entitlements
+        VIBE_REVENUECAT_API_KEY: ""
     info:
       path: VibeOS/Info.plist
       properties:
@@ -39,7 +40,7 @@ targets:
         NSPhotoLibraryUsageDescription: VibeOS can use a photo you select to create a personalized theme.
         UIBackgroundModes:
           - remote-notification
-        VIBE_REVENUECAT_API_KEY: ""
+        VIBE_REVENUECAT_API_KEY: $(VIBE_REVENUECAT_API_KEY)
         CFBundleURLTypes:
           - CFBundleURLSchemes:
               - vibeos
@@ -58,6 +59,15 @@ targets:
         embed: true
       - target: NotificationService
         embed: true
+    postBuildScripts:
+      - name: Firebase Crashlytics dSYM
+        basedOnDependencyAnalysis: false
+        script: |
+          if [ -f "$PROJECT_DIR/VibeOS/GoogleService-Info.plist" ]; then
+            "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run"
+          else
+            echo "Skipping Crashlytics upload: GoogleService-Info.plist is not configured."
+          fi
 
   VibeOSWidgets:
     type: app-extension

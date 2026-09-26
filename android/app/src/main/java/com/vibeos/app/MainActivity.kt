@@ -9,11 +9,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.mutableStateOf
 import com.vibeos.app.live.VibeLiveWallpaperService
 import com.vibeos.app.services.DailyDropScheduler
 import com.vibeos.app.ui.VibeOSRoot
 
 class MainActivity : ComponentActivity() {
+    private val routeState = mutableStateOf<String?>(null)
+
     private val notificationPermission = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -24,6 +27,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        routeState.value = intent.data?.host
 
         if (
             getSharedPreferences("vibeos", MODE_PRIVATE)
@@ -34,6 +38,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             VibeOSRoot(
+                externalRoute = routeState.value,
                 onApplyLiveWorld = {
                     val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER).apply {
                         putExtra(
@@ -55,5 +60,11 @@ class MainActivity : ComponentActivity() {
                 }
             )
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        routeState.value = intent.data?.host
     }
 }

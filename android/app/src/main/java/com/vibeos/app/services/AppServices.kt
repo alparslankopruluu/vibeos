@@ -25,21 +25,26 @@ object AppServices {
         private set
     lateinit var remoteConfig: RemoteConfigService
         private set
+    lateinit var engagement: EngagementTracker
+        private set
 
     fun initialize(context: Context) {
         val firebaseReady = FirebaseBootstrap.initialize(context)
         analytics = AnalyticsService(context, firebaseReady)
         remoteConfig = RemoteConfigService(firebaseReady)
         purchases = PurchaseManager(context)
+        engagement = EngagementTracker(context)
+
+        val streak = engagement.recordOpen()
         remoteConfig.refresh()
-        analytics.log("app_open")
+        analytics.log("app_open", mapOf("streak" to streak.toString()))
     }
 }
 
 private object FirebaseBootstrap {
     fun initialize(context: Context): Boolean {
-        if (BuildConfig.FIREBASE_APP_ID.isBlank() || BuildConfig.FIREBASE_PROJECT_ID.isBlank()) return false
         if (FirebaseApp.getApps(context).isNotEmpty()) return true
+        if (BuildConfig.FIREBASE_APP_ID.isBlank() || BuildConfig.FIREBASE_PROJECT_ID.isBlank()) return false
 
         return runCatching {
             val options = FirebaseOptions.Builder()
@@ -87,43 +92,49 @@ class RemoteConfigService(private val firebaseReady: Boolean) {
 
     fun refresh() {
         if (!firebaseReady) return
+
         runCatching {
             val rc = FirebaseRemoteConfig.getInstance()
-            val fallbackEpochSeconds = System.currentTimeMillis() / 1000L + 6 * 60 * 60
             rc.setDefaultsAsync(
                 mapOf(
                     "daily_drop_theme_id" to "sakura_night",
-                    "offer_title" to "40% Launch Offer",
-                    "offer_subtitle" to "Premium yearly plan — limited time",
-                    "offer_expiry_epoch" to fallbackEpochSeconds
+                    "offer_title" to "Limited-time Premium offer",
+                    "offer_subtitle" to "Special annual plan",
+                    "offer_expiry_epoch" to 0L
                 )
             )
+
             rc.fetchAndActivate().addOnCompleteListener {
-                dailyDropThemeId = rc.getString("daily_drop_theme_id").ifBlank { "sakura_night" }
+                dailyDropThemeId = rc.getString("daily_drop_theme_id")
+                    .ifBlank { "sakura_night" }
 
+                val nowSeconds = System.currentTimeMillis() / 1000L
                 val expirySeconds = rc.getLong("offer_expiry_epoch")
-                    .takeIf { value -> value > System.currentTimeMillis() / 1000L }
-                    ?: fallbackEpochSeconds
 
-                limitedOffer = LimitedOffer(
-                    id = "remote_offer",
-                    title = rc.getString("offer_title").ifBlank { "40% Launch Offer" },
-                    subtitle = rc.getString("offer_subtitle")
-                        .ifBlank { "Premium yearly plan — limited time" },
-                    expiresAtMillis = expirySeconds * 1000L
-                )
+                limitedOffer = if (expirySeconds > nowSeconds) {
+                    LimitedOffer(
+                        id = "remote_offer",
+                        title = rc.getString("offer_title")
+                            .ifBlank { "Limited-time Premium offer" },
+                        subtitle = rc.getString("offer_subtitle")
+                            .ifBlank { "Special annual plan" },
+                        expiresAtMillis = expirySeconds * 1000L
+                    )
+                } else {
+                    fallbackOffer()
+                }
             }
         }.onFailure {
-            runCatching { AppServices.analytics.nonFatal(it, "remote_config_fetch") }
+            runCatching { analytics.nonFatal(it, "remote_config_fetch") }
         }
     }
 
     private companion object {
         fun fallbackOffer() = LimitedOffer(
-            id = "launch_annual_40",
-            title = "40% Launch Offer",
-            subtitle = "Premium yearly plan — limited time",
-            expiresAtMillis = System.currentTimeMillis() + 6 * 60 * 60 * 1000L
+            id = "standard",
+            title = "VibeOS Premium",
+            subtitle = "Unlock the complete VibeOS experience.",
+            expiresAtMillis = 0L
         )
     }
 }

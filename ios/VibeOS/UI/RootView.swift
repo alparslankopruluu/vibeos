@@ -72,6 +72,39 @@ struct RootView: View {
             }
         }
         .tint(.white)
+        .onOpenURL { url in
+            guard url.scheme == "vibeos", let route = url.host else { return }
+            handle(route: route)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .vibeRoute)) { notification in
+            guard let route = notification.userInfo?["route"] as? String else { return }
+            handle(route: route)
+        }
+    }
+
+    private func handle(route: String) {
+        selectedTheme = nil
+        selectedWorld = nil
+        applyingTheme = nil
+        showPaywall = false
+
+        switch route.lowercased() {
+        case "live", "live-worlds":
+            tab = .live
+        case "create":
+            tab = .create
+        case "mine", "my-screen":
+            tab = .mine
+        case "premium", "offer":
+            showPaywall = true
+        default:
+            tab = .discover
+        }
+
+        AppServices.shared.analytics.log(
+            "deep_link_open",
+            params: ["route": String(route.prefix(40))]
+        )
     }
 }
 

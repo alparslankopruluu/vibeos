@@ -11,6 +11,7 @@ final class AppServices {
     let analytics = AnalyticsService()
     let offers = OfferService()
     let purchases = PurchaseService()
+    let engagement = EngagementTracker()
 
     private(set) var firebaseReady = false
 
@@ -29,7 +30,8 @@ final class AppServices {
         analytics.enabled = firebaseReady
         offers.configure(firebaseReady: firebaseReady)
         purchases.configure()
-        analytics.log("app_open")
+        let streak = engagement.recordOpen()
+        analytics.log("app_open", params: ["streak": streak])
     }
 }
 
@@ -51,10 +53,10 @@ final class AnalyticsService {
 final class OfferService: ObservableObject {
     @Published private(set) var dailyDropThemeID = "sakura_night"
     @Published private(set) var limitedOffer = LimitedOffer(
-        id: "launch_annual_40",
-        title: "40% Launch Offer",
-        subtitle: "Premium yearly plan — limited time",
-        expiry: Date().addingTimeInterval(6 * 60 * 60)
+        id: "standard",
+        title: "VibeOS Premium",
+        subtitle: "Unlock the complete VibeOS experience.",
+        expiry: .distantPast
     )
 
     func configure(firebaseReady: Bool) {
@@ -62,27 +64,37 @@ final class OfferService: ObservableObject {
         let remote = RemoteConfig.remoteConfig()
         remote.setDefaults([
             "daily_drop_theme_id": "sakura_night" as NSObject,
-            "offer_title": "40% Launch Offer" as NSObject,
-            "offer_subtitle": "Premium yearly plan — limited time" as NSObject,
-            "offer_expiry_epoch": Date().addingTimeInterval(6 * 60 * 60).timeIntervalSince1970 as NSObject
+            "offer_title": "Limited-time Premium offer" as NSObject,
+            "offer_subtitle": "Special annual plan" as NSObject,
+            "offer_expiry_epoch": 0 as NSObject
         ])
 
         remote.fetchAndActivate { [weak self] _, error in
             guard error == nil, let self else { return }
             let id = remote["daily_drop_theme_id"].stringValue ?? "sakura_night"
-            let title = remote["offer_title"].stringValue ?? "40% Launch Offer"
-            let subtitle = remote["offer_subtitle"].stringValue ?? "Premium yearly plan — limited time"
+            let title = remote["offer_title"].stringValue ?? "Limited-time Premium offer"
+            let subtitle = remote["offer_subtitle"].stringValue ?? "Special annual plan"
             let rawExpiry = remote["offer_expiry_epoch"].numberValue.doubleValue
-            let expiry = rawExpiry > 0 ? Date(timeIntervalSince1970: rawExpiry) : Date().addingTimeInterval(6 * 60 * 60)
+            let expiry = Date(timeIntervalSince1970: rawExpiry)
 
             DispatchQueue.main.async {
                 self.dailyDropThemeID = id
-                self.limitedOffer = LimitedOffer(
-                    id: "remote_offer",
-                    title: title,
-                    subtitle: subtitle,
-                    expiry: expiry
-                )
+
+                if rawExpiry > 0 && expiry > Date() {
+                    self.limitedOffer = LimitedOffer(
+                        id: "remote_offer",
+                        title: title,
+                        subtitle: subtitle,
+                        expiry: expiry
+                    )
+                } else {
+                    self.limitedOffer = LimitedOffer(
+                        id: "standard",
+                        title: "VibeOS Premium",
+                        subtitle: "Unlock the complete VibeOS experience.",
+                        expiry: .distantPast
+                    )
+                }
             }
         }
     }

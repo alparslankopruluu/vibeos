@@ -63,6 +63,8 @@ Core events must keep the same semantic names across platforms:
 - `notification_permission_result`
 - `daily_drop_notification_scheduled`
 - `push_received`
+- `push_open`
+- `deep_link_open`
 
 Do not log raw user photos, AI prompt contents, FCM tokens, email addresses, or other user content as analytics parameters.
 
@@ -71,3 +73,8 @@ Do not log raw user photos, AI prompt contents, FCM tokens, email addresses, or 
 Android can provide a real live wallpaper through `WallpaperService`.
 
 iOS Live Worlds remain interactive inside VibeOS and export an approved wallpaper asset to Photos. The product must not claim that VibeOS can silently bypass Apple's wallpaper controls.
+
+
+## Limited-offer integrity
+
+A countdown is rendered only when `offer_expiry_epoch` is a real future Unix timestamp supplied by Remote Config. The local fallback never fabricates a resetting countdown.

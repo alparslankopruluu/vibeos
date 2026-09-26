@@ -28,6 +28,10 @@ fun PaywallScreen(onBack: () -> Unit) {
     }
     var buying by remember { mutableStateOf(false) }
 
+    LaunchedEffect(offer.id) {
+        AppServices.analytics.log("paywall_view", mapOf("offer_id" to offer.id))
+    }
+
     LaunchedEffect(offer.expiresAtMillis) {
         while (remaining > 0) {
             delay(1000)
@@ -61,14 +65,15 @@ fun PaywallScreen(onBack: () -> Unit) {
 
         Spacer(Modifier.height(20.dp))
 
-        GlassCard(Modifier.fillMaxWidth()) {
-            Text(offer.title, color = VibeColors.Pink, fontWeight = FontWeight.Black, fontSize = 17.sp)
-            Text(offer.subtitle, color = Color.White.copy(.82f), fontSize = 13.sp)
-            Spacer(Modifier.height(9.dp))
-            Text(countdown, color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.Black)
+        if (offer.expiresAtMillis > System.currentTimeMillis()) {
+            GlassCard(Modifier.fillMaxWidth()) {
+                Text(offer.title, color = VibeColors.Pink, fontWeight = FontWeight.Black, fontSize = 17.sp)
+                Text(offer.subtitle, color = Color.White.copy(.82f), fontSize = 13.sp)
+                Spacer(Modifier.height(9.dp))
+                Text(countdown, color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.Black)
+            }
+            Spacer(Modifier.height(17.dp))
         }
-
-        Spacer(Modifier.height(17.dp))
 
         listOf(
             "All premium themes",

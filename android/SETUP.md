@@ -12,27 +12,42 @@ VibeOS Android is native Kotlin + Jetpack Compose with a custom visual system. P
 
 AGP 9 uses built-in Kotlin. Do not add the old `org.jetbrains.kotlin.android` plugin back.
 
-## Runtime configuration
+## Firebase
 
-Put these values in untracked `~/.gradle/gradle.properties`, local `gradle.properties`, or CI environment variables:
+For production, place the Firebase Android config at:
+
+```
+android/app/google-services.json
+```
+
+The file is gitignored. When it exists, the build automatically enables the current Google Services and Crashlytics Gradle plugins so Crashlytics receives proper build metadata/mapping support.
+
+For local UI development or CI without the Firebase file, these optional Gradle properties/environment variables can initialize Firebase programmatically:
 
 ```properties
 VIBE_FIREBASE_API_KEY=
 VIBE_FIREBASE_APP_ID=
 VIBE_FIREBASE_PROJECT_ID=
 VIBE_FIREBASE_SENDER_ID=
-VIBE_REVENUECAT_API_KEY=
 ```
 
-No secret is committed. Without these values the UI still launches; Firebase/RevenueCat network features gracefully stay disabled.
-
-For a production Play release, also add the normal Firebase Android app to the Firebase project and configure Crashlytics mapping upload in your release pipeline.
+The app still launches when Firebase is absent; analytics, push, Remote Config and crash reporting simply remain inactive.
 
 ## RevenueCat
 
-- Entitlement: `premium`
-- Current offering: include an annual package
-- The paywall reads the actual store price from RevenueCat during purchase; visual copy must remain consistent with App Store / Play Console pricing.
+Supply the public Android SDK key as:
+
+```properties
+VIBE_REVENUECAT_API_KEY=
+```
+
+Configure:
+
+- entitlement: `premium`
+- current offering: annual package
+- store-side free trial / intro offer in Play Console
+
+Never embed a RevenueCat secret key or AI-provider secret in the mobile app.
 
 ## Remote Config
 
