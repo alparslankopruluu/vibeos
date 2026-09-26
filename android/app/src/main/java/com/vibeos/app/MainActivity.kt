@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity() {
     var welcomed by remember { mutableStateOf(prefs.getBoolean("welcomed", false)) }
     LaunchedEffect(Unit) {
         Catalog.fetch(activity) { themes = it }
-        if (BuildConfig.REVENUECAT_KEY.isNotBlank()) Purchases.sharedInstance.getCustomerInfoWith({ Telemetry.error(activity, it) }) { premium = it.entitlements["premium"]?.isActive == true }
+        if (BuildConfig.REVENUECAT_KEY.isNotBlank()) Purchases.sharedInstance.getCustomerInfoWith({ Telemetry.error(activity, Exception(it.message)) }) { premium = it.entitlements["premium"]?.isActive == true }
     }
     LaunchedEffect(incoming, themes) { incoming?.let { id -> themes.firstOrNull { it.id == id }?.let { selected = it } } }
     MaterialTheme(colorScheme = darkColorScheme(background = Ink, surface = Ink)) {
@@ -356,7 +356,7 @@ class MainActivity : ComponentActivity() {
         Spacer(Modifier.height(12.dp)); Label("Unlock all complete looks, live worlds and new drops as they arrive.", 16.sp, Soft)
         Spacer(Modifier.height(30.dp)); listOf("All premium themes", "Every Live World", "New drops and collections").forEach { Label("✓  $it", 17.sp); Spacer(Modifier.height(14.dp)) }
         Spacer(Modifier.height(18.dp)); if (packages.isEmpty()) Label("Store plans will appear here when configured.", 14.sp, Soft)
-        packages.forEachIndexed { index, item -> Box(Modifier.fillMaxWidth().padding(vertical = 6.dp).clip(RoundedCornerShape(18.dp)).border(1.dp, if (chosen == index) Accent else Soft.copy(alpha = .3f), RoundedCornerShape(18.dp)).clickable { chosen = index }.padding(18.dp)) { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Label(item.storeProduct.title, 15.sp, bold = true); Label(item.storeProduct.price.formatted, 15.sp, Accent) } } }
+        packages.forEachIndexed { index, item -> Box(Modifier.fillMaxWidth().padding(vertical = 6.dp).clip(RoundedCornerShape(18.dp)).border(1.dp, if (chosen == index) Accent else Soft.copy(alpha = .3f), RoundedCornerShape(18.dp)).clickable { chosen = index }.padding(18.dp)) { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Label(item.product.title, 15.sp, bold = true); Label(item.product.price.formatted, 15.sp, Accent) } } }
         Spacer(Modifier.height(16.dp)); Pill("CONTINUE", {
             packages.getOrNull(chosen)?.let { pack ->
                 Telemetry.event(activity, "purchase_started")
