@@ -39,7 +39,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             VibeOSRoot(
                 externalRoute = routeState.value,
-                onApplyLiveWorld = {
+                onApplyLiveWorld = { world ->
+                    getSharedPreferences("vibeos", MODE_PRIVATE)
+                        .edit()
+                        .putString("live_world_id", world.id)
+                        .apply()
+
                     val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER).apply {
                         putExtra(
                             WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,

@@ -78,6 +78,7 @@ fun LiveWorldsScreen(onWorld: (LiveWorld) -> Unit) {
 @Composable
 fun LiveWorldDetailScreen(
     world: LiveWorld,
+    premiumActive: Boolean,
     onBack: () -> Unit,
     onApply: () -> Unit,
     onPremium: () -> Unit
@@ -112,7 +113,7 @@ fun LiveWorldDetailScreen(
                 if (world.premium) "Unlock & Set Live World" else "Set as Live Wallpaper",
                 Modifier.fillMaxWidth()
             ) {
-                if (world.premium) {
+                if (world.premium && !premiumActive) {
                     onPremium()
                 } else {
                     AppServices.analytics.log("live_world_apply_tap", mapOf("world_id" to world.id))

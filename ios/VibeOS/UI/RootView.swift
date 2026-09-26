@@ -23,6 +23,7 @@ struct RootView: View {
     @State private var selectedWorld: LiveWorld?
     @State private var applyingTheme: ThemePack?
     @State private var showPaywall = false
+    @State private var premiumActive = false
 
     var body: some View {
         VibeBackground {
@@ -32,12 +33,19 @@ struct RootView: View {
                     onboarded = true
                 }
             } else if showPaywall {
-                PaywallView { showPaywall = false }
+                PaywallView(
+                    onBack: { showPaywall = false },
+                    onPurchased: {
+                        premiumActive = true
+                        showPaywall = false
+                    }
+                )
             } else if let theme = applyingTheme {
                 ApplyThemeView(theme: theme) { applyingTheme = nil }
             } else if let theme = selectedTheme {
                 ThemeDetailView(
                     theme: theme,
+                    premiumActive: premiumActive,
                     onBack: { selectedTheme = nil },
                     onPremium: { showPaywall = true },
                     onApply: { applyingTheme = theme }
@@ -45,6 +53,7 @@ struct RootView: View {
             } else if let world = selectedWorld {
                 LiveWorldDetailView(
                     world: world,
+                    premiumActive: premiumActive,
                     onBack: { selectedWorld = nil },
                     onPremium: { showPaywall = true }
                 )
@@ -60,9 +69,16 @@ struct RootView: View {
                         case .live:
                             LiveWorldsView { selectedWorld = $0 }
                         case .create:
-                            CreateThemeView { showPaywall = true }
+                            CreateThemeView(
+                                premiumActive: premiumActive,
+                                onPremium: { showPaywall = true },
+                                onGeneratedTheme: { selectedTheme = $0 }
+                            )
                         case .mine:
-                            MyScreenView { showPaywall = true }
+                            MyScreenView(
+                                onPremium: { showPaywall = true },
+                                onPremiumRestored: { premiumActive = true }
+                            )
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -75,6 +91,9 @@ struct RootView: View {
         .onOpenURL { url in
             guard url.scheme == "vibeos", let route = url.host else { return }
             handle(route: route)
+        }
+        .task {
+            AppServices.shared.purchases.checkPremium { premiumActive = $0 }
         }
         .onReceive(NotificationCenter.default.publisher(for: .vibeRoute)) { notification in
             guard let route = notification.userInfo?["route"] as? String else { return }

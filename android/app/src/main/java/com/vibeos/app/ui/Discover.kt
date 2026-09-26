@@ -178,6 +178,7 @@ fun ThemePhonePreview(theme: ThemePack, modifier: Modifier = Modifier) {
 @Composable
 fun ThemeDetailScreen(
     theme: ThemePack,
+    premiumActive: Boolean,
     onBack: () -> Unit,
     onPremium: () -> Unit,
     onApply: () -> Unit
@@ -219,7 +220,7 @@ fun ThemeDetailScreen(
         }
         item {
             VibeButton("Apply Complete Theme", Modifier.fillMaxWidth()) {
-                if (theme.premium) onPremium() else onApply()
+                if (theme.premium && !premiumActive) onPremium() else onApply()
             }
             Spacer(Modifier.height(9.dp))
             VibeSecondaryButton("Customize", Modifier.fillMaxWidth()) {

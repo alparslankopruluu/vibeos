@@ -97,6 +97,7 @@ struct LiveWorldsView: View {
 
 struct LiveWorldDetailView: View {
     let world: LiveWorld
+    let premiumActive: Bool
     let onBack: () -> Void
     let onPremium: () -> Void
 
@@ -148,7 +149,7 @@ struct LiveWorldDetailView: View {
                 }
 
                 VibeButton(title: world.premium ? "Unlock Live World" : "Save Live World") {
-                    if world.premium {
+                    if world.premium && !premiumActive {
                         onPremium()
                     } else {
                         AppServices.shared.analytics.log("live_world_export_tap", params: ["world_id": world.id])

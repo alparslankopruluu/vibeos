@@ -28,7 +28,11 @@ import com.vibeos.app.services.ThemeGenerationService
 import kotlinx.coroutines.delay
 
 @Composable
-fun CreateScreen(onPremium: () -> Unit) {
+fun CreateScreen(
+    premiumActive: Boolean,
+    onPremium: () -> Unit,
+    onGeneratedTheme: (ThemePack) -> Unit
+) {
     var prompt by remember { mutableStateOf("Rainy Tokyo, dark glass, neon") }
     var selectedPhoto by remember { mutableStateOf<String?>(null) }
     var generating by remember { mutableStateOf(false) }
@@ -132,8 +136,14 @@ fun CreateScreen(onPremium: () -> Unit) {
                 Modifier.fillMaxWidth(),
                 enabled = !generating
             ) {
-                if (generated != null) {
-                    onPremium()
+                val result = generated
+                if (result != null) {
+                    if (result.premium && !premiumActive) {
+                        onPremium()
+                    } else {
+                        AppServices.analytics.log("ai_theme_apply_tap")
+                        onGeneratedTheme(result)
+                    }
                 } else {
                     generating = true
                     AppServices.analytics.log(
@@ -147,7 +157,11 @@ fun CreateScreen(onPremium: () -> Unit) {
 }
 
 @Composable
-fun MyScreen(onPremium: () -> Unit, onNotifications: () -> Unit) {
+fun MyScreen(
+    onPremium: () -> Unit,
+    onNotifications: () -> Unit,
+    onPremiumRestored: () -> Unit
+) {
     LazyColumn(
         Modifier.fillMaxSize(),
         contentPadding = PaddingValues(18.dp),
@@ -192,6 +206,7 @@ fun MyScreen(onPremium: () -> Unit, onNotifications: () -> Unit) {
             VibeSecondaryButton("Restore Purchases", Modifier.fillMaxWidth()) {
                 AppServices.purchases.restore { restored ->
                     AppServices.analytics.log("restore_purchase_result", mapOf("restored" to restored.toString()))
+                    if (restored) onPremiumRestored()
                 }
             }
         }

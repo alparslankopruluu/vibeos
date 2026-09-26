@@ -34,7 +34,7 @@ fun vibeColor(value: Long) = Color(value.toULong())
 @Composable
 fun VibeOSRoot(
     externalRoute: String? = null,
-    onApplyLiveWorld: () -> Unit,
+    onApplyLiveWorld: (LiveWorld) -> Unit,
     onRequestNotifications: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -99,7 +99,7 @@ private fun OnboardingScreen(onDone: () -> Unit) {
 @Composable
 private fun MainExperience(
     externalRoute: String?,
-    onApplyLiveWorld: () -> Unit,
+    onApplyLiveWorld: (LiveWorld) -> Unit,
     onRequestNotifications: () -> Unit
 ) {
     var tab by rememberSaveable { mutableStateOf(RootTab.Discover) }
@@ -107,6 +107,11 @@ private fun MainExperience(
     var selectedWorld by remember { mutableStateOf<LiveWorld?>(null) }
     var showPaywall by remember { mutableStateOf(false) }
     var applyingTheme by remember { mutableStateOf<ThemePack?>(null) }
+    var premiumActive by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        AppServices.purchases.checkPremium { premiumActive = it }
+    }
 
     LaunchedEffect(externalRoute) {
         when (externalRoute?.lowercase()) {
@@ -160,18 +165,26 @@ private fun MainExperience(
 
     AnimatedContent(targetState = route, label = "route") {
         when (it) {
-            "paywall" -> PaywallScreen { showPaywall = false }
+            "paywall" -> PaywallScreen(
+                onBack = { showPaywall = false },
+                onPurchased = {
+                    premiumActive = true
+                    showPaywall = false
+                }
+            )
             "apply" -> ApplyThemeScreen(applyingTheme!!, { applyingTheme = null }, { applyingTheme = null })
             "theme" -> ThemeDetailScreen(
-                selectedTheme!!,
+                theme = selectedTheme!!,
+                premiumActive = premiumActive,
                 onBack = { selectedTheme = null },
                 onPremium = { showPaywall = true },
                 onApply = { applyingTheme = selectedTheme }
             )
             "world" -> LiveWorldDetailScreen(
-                selectedWorld!!,
+                world = selectedWorld!!,
+                premiumActive = premiumActive,
                 onBack = { selectedWorld = null },
-                onApply = onApplyLiveWorld,
+                onApply = { onApplyLiveWorld(selectedWorld!!) },
                 onPremium = { showPaywall = true }
             )
             else -> Column(Modifier.fillMaxSize()) {
@@ -179,8 +192,16 @@ private fun MainExperience(
                     when (tab) {
                         RootTab.Discover -> DiscoverScreen({ selectedTheme = it }, { showPaywall = true })
                         RootTab.Live -> LiveWorldsScreen { selectedWorld = it }
-                        RootTab.Create -> CreateScreen { showPaywall = true }
-                        RootTab.Mine -> MyScreen({ showPaywall = true }, onRequestNotifications)
+                        RootTab.Create -> CreateScreen(
+                            premiumActive = premiumActive,
+                            onPremium = { showPaywall = true },
+                            onGeneratedTheme = { selectedTheme = it }
+                        )
+                        RootTab.Mine -> MyScreen(
+                            onPremium = { showPaywall = true },
+                            onNotifications = onRequestNotifications,
+                            onPremiumRestored = { premiumActive = true }
+                        )
                     }
                 }
                 VibeBottomBar(tab) {

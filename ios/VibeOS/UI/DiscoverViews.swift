@@ -218,6 +218,7 @@ struct ThemePhonePreview: View {
 
 struct ThemeDetailView: View {
     let theme: ThemePack
+    let premiumActive: Bool
     let onBack: () -> Void
     let onPremium: () -> Void
     let onApply: () -> Void
@@ -264,7 +265,7 @@ struct ThemeDetailView: View {
                 }
 
                 VibeButton(title: "Apply Complete Theme") {
-                    theme.premium ? onPremium() : onApply()
+                    (theme.premium && !premiumActive) ? onPremium() : onApply()
                 }
 
                 VibeSecondaryButton(title: "Customize") {

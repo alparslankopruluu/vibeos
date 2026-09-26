@@ -12,6 +12,7 @@ import com.revenuecat.purchases.LogLevel
 import com.revenuecat.purchases.PurchaseParams
 import com.revenuecat.purchases.Purchases
 import com.revenuecat.purchases.PurchasesConfiguration
+import com.revenuecat.purchases.getCustomerInfoWith
 import com.revenuecat.purchases.getOfferingsWith
 import com.revenuecat.purchases.purchaseWith
 import com.revenuecat.purchases.restorePurchasesWith
@@ -151,6 +152,20 @@ class PurchaseManager(context: Context) {
                 )
             }
         }
+    }
+
+    fun checkPremium(onResult: (Boolean) -> Unit) {
+        if (!configured) {
+            onResult(false)
+            return
+        }
+
+        Purchases.sharedInstance.getCustomerInfoWith(
+            onError = { onResult(false) },
+            onSuccess = { info ->
+                onResult(info.entitlements["premium"]?.isActive == true)
+            }
+        )
     }
 
     fun purchaseAnnual(activity: Activity, onResult: (Boolean, String?) -> Unit) {

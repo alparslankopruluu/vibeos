@@ -19,7 +19,10 @@ import kotlinx.coroutines.delay
 import kotlin.math.max
 
 @Composable
-fun PaywallScreen(onBack: () -> Unit) {
+fun PaywallScreen(
+    onBack: () -> Unit,
+    onPurchased: () -> Unit
+) {
     val context = LocalContext.current
     val activity = context as? Activity
     val offer = AppServices.remoteConfig.limitedOffer
@@ -123,7 +126,7 @@ fun PaywallScreen(onBack: () -> Unit) {
                     if (success) "Premium unlocked" else (error ?: "Purchase failed"),
                     Toast.LENGTH_SHORT
                 ).show()
-                if (success) onBack()
+                if (success) onPurchased()
             }
         }
 

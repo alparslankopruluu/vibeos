@@ -110,6 +110,27 @@ final class PurchaseService {
         configured = true
     }
 
+    func checkPremium(completion: @escaping (Bool) -> Void) {
+        guard configured else {
+            completion(false)
+            return
+        }
+
+        Task {
+            do {
+                let info = try await Purchases.shared.customerInfo()
+                let active = info.entitlements.active["premium"]?.isActive == true
+                DispatchQueue.main.async {
+                    completion(active)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(false)
+                }
+            }
+        }
+    }
+
     func purchaseAnnual(completion: @escaping (Bool, String?) -> Void) {
         guard configured else {
             completion(false, "RevenueCat key is not configured")

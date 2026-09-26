@@ -28,7 +28,9 @@ enum LocalThemeGenerator {
 }
 
 struct CreateThemeView: View {
+    let premiumActive: Bool
     let onPremium: () -> Void
+    let onGeneratedTheme: (ThemePack) -> Void
 
     @State private var prompt = "Rainy Tokyo, dark glass, neon"
     @State private var photo: PhotosPickerItem?
@@ -122,8 +124,13 @@ struct CreateThemeView: View {
                     title: generating ? "Creating…" : (generated == nil ? "Generate My Theme" : "Apply Generated Theme"),
                     enabled: !generating
                 ) {
-                    if generated != nil {
-                        onPremium()
+                    if let result = generated {
+                        if result.premium && !premiumActive {
+                            onPremium()
+                        } else {
+                            AppServices.shared.analytics.log("ai_theme_apply_tap")
+                            onGeneratedTheme(result)
+                        }
                     } else {
                         generating = true
                         AppServices.shared.analytics.log(
@@ -146,6 +153,7 @@ struct CreateThemeView: View {
 
 struct MyScreenView: View {
     let onPremium: () -> Void
+    let onPremiumRestored: () -> Void
 
     var body: some View {
         ScrollView {
@@ -212,6 +220,11 @@ struct MyScreenView: View {
                 VibeSecondaryButton(title: "Restore Purchases") {
                     AppServices.shared.purchases.restore { restored in
                         AppServices.shared.analytics.log("restore_purchase_result", params: ["restored": restored])
+                        if restored {
+                            DispatchQueue.main.async {
+                                onPremiumRestored()
+                            }
+                        }
                     }
                 }
             }
@@ -223,6 +236,7 @@ struct MyScreenView: View {
 
 struct PaywallView: View {
     let onBack: () -> Void
+    let onPurchased: () -> Void
 
     @ObservedObject private var offers = AppServices.shared.offers
     @State private var now = Date()
@@ -337,7 +351,7 @@ struct PaywallView: View {
                             params: ["success": success, "error": error ?? ""]
                         )
                         if success {
-                            onBack()
+                            onPurchased()
                         } else {
                             status = error ?? "Purchase failed"
                         }
