@@ -1,0 +1,6 @@
+{
+  "catalog_schema": 1,
+  "remote_config": {"catalog_url":"", "daily_drop_theme_id":"sakura-drift", "offer_id":"", "offer_ends_at":"", "push_daily_enabled":false},
+  "push": {"type":"theme|daily_drop|offer", "theme_id":"midnight-glass", "deeplink":"vibeos://theme/midnight-glass"},
+  "events": ["onboarding_completed","theme_impression","theme_opened","theme_apply_started","theme_applied","theme_apply_failed","world_opened","world_interacted","daily_drop_opened","create_started","create_completed","create_failed","paywall_viewed","purchase_started","purchase_completed","purchase_failed","offer_viewed","notification_opened","notification_permission_result"]
+}

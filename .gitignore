@@ -1,0 +1,15 @@
+.DS_Store
+.gradle/
+build/
+**/build/
+**/.idea/
+*.xcuserstate
+*.xcuserdata/
+ios/VibeOS.xcodeproj/
+ios/VibeOS.xcworkspace/
+android/local.properties
+android/app/google-services.json
+ios/VibeOS/GoogleService-Info.plist
+functions/.env*
+functions/lib/
+functions/node_modules/

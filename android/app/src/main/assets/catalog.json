@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "themes": [
+    {"id":"midnight-glass","title":"Midnight Glass","category":"Glass","subtitle":"A quieter kind of dark","colors":["#090E23","#293A8F","#8A9FFF"],"world":"space","premium":false},
+    {"id":"sakura-drift","title":"Sakura Drift","category":"Cute","subtitle":"Soft light, slower days","colors":["#2A1646","#C15DAB","#FFD1E5"],"world":"sakura","premium":false},
+    {"id":"abyss","title":"Abyss","category":"Nature","subtitle":"An ocean on your screen","colors":["#061B2B","#076D86","#61D7CF"],"world":"ocean","premium":false},
+    {"id":"neon-run","title":"Neon Run","category":"Cyber","subtitle":"The city never sleeps","colors":["#100D28","#6337C7","#F86AB8"],"world":"city","premium":true},
+    {"id":"desert-hour","title":"Desert Hour","category":"Minimal","subtitle":"Golden hour, all day","colors":["#3E203A","#B66660","#F6C99C"],"world":"desert","premium":true},
+    {"id":"orbit","title":"Orbit","category":"Space","subtitle":"A universe in motion","colors":["#070C25","#1F539D","#8FDDF7"],"world":"space","premium":true}
+  ],
+  "worlds": [
+    {"id":"space","title":"Starlight","interaction":"Tilt to drift · Touch to sparkle"},
+    {"id":"ocean","title":"Blue Depths","interaction":"Tilt the current · Touch the water"},
+    {"id":"sakura","title":"Petal Fall","interaction":"Tilt the breeze · Touch the petals"},
+    {"id":"city","title":"Neon City","interaction":"Tilt the lights · Touch to pulse"},
+    {"id":"desert","title":"Dune Glow","interaction":"Tilt the light · Touch to shimmer"}
+  ]
+}
