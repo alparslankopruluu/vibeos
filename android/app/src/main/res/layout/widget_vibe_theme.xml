@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:padding="18dp">
+
+    <TextView
+        android:id="@+id/widget_brand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="VibeOS"
+        android:textColor="#CCFFFFFF"
+        android:textSize="11sp"
+        android:textStyle="bold" />
+
+    <TextClock
+        android:id="@+id/widget_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/widget_brand"
+        android:format12Hour="h:mm"
+        android:format24Hour="HH:mm"
+        android:textColor="#FFFFFFFF"
+        android:textSize="34sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="✦ Midnight Glass"
+        android:textColor="#FFFFFFFF"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+</RelativeLayout>

@@ -206,14 +206,7 @@ struct MyScreenView: View {
                 VibeButton(title: "♛  Upgrade to Premium", action: onPremium)
 
                 VibeSecondaryButton(title: "Enable Daily Drop Notifications") {
-                    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
-                        AppServices.shared.analytics.log("notification_permission_result", params: ["granted": granted])
-                        if granted {
-                            DispatchQueue.main.async {
-                                UIApplication.shared.registerForRemoteNotifications()
-                            }
-                        }
-                    }
+                    DailyNotificationScheduler.requestAndSchedule()
                 }
 
                 VibeSecondaryButton(title: "Restore Purchases") {

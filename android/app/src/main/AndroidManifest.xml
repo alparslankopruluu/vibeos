@@ -9,6 +9,7 @@
         android:label="VibeOS"
         android:supportsRtl="true"
         android:theme="@style/Theme.VibeOS">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -25,7 +26,20 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".services.VibeMessagingService" android:exported="false">
+        <receiver
+            android:name=".widgets.VibeThemeWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/vibe_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".services.VibeMessagingService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
