@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">VibeOS</string>
+    <string name="live_world_description">VibeOS interactive Live World</string>
+    <string name="widget_description">A matching VibeOS clock and theme widget.</string>
+</resources>
