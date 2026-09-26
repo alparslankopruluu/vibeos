@@ -46,7 +46,11 @@ import androidx.compose.ui.geometry.Offset
 import android.graphics.BitmapFactory
 import com.revenuecat.purchases.Purchases
 import com.revenuecat.purchases.PurchaseParams
-import com.revenuecat.purchases.models.Package as RCPackage
+import com.revenuecat.purchases.Package as RCPackage
+import com.revenuecat.purchases.getCustomerInfoWith
+import com.revenuecat.purchases.getOfferingsWith
+import com.revenuecat.purchases.purchaseWith
+import com.revenuecat.purchases.restorePurchasesWith
 import java.net.HttpURLConnection
 import java.net.URL
 import org.json.JSONObject
